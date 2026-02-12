@@ -109,11 +109,8 @@ const TEXT_CONFIG = {
 
     // 祝福语
     blessings: [
-        '一个亿', '大富大贵', '恭喜发财', '小公主发大财',
-        '快快乐乐', '爽吃黄焖鸡', '暴富', '心想事成',
-        '万事如意', '财源滚滚', '好运连连', '升职加薪',
-        '锦鲤附体', '天天开心', '越来越美', '嘎嘎上分',
-        '一夜暴富', '幸福美满', '吃嘛嘛香', '躺赢人生'
+        '黄一心', '新年快乐','嘎嘎上分', '小公主发大财',
+        '开开心心', '爽吃黄焖鸡', '暴富', '心想事成',
     ]
 };
 
@@ -203,3 +200,167 @@ const MEDIA_CONFIG = {
 
     galleryHeights: [320, 420, 280, 500, 360, 450, 300, 380, 460, 340]
 };
+
+// ===== 滚动时打印当前可见文字（带防抖） =====
+function debounce(fn, delay) {
+    let timer = null;
+    return function (...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+}
+
+// ===== AI 调用相关 =====
+let aiCalling = false;      // 防止并发调用
+let lastSentText = '';       // 上次发送的文字，避免重复请求
+
+async function callAI(visibleText) {
+    if (aiCalling) return;
+    // 内容没变就不重复调用
+    if (visibleText === lastSentText) return;
+    lastSentText = visibleText;
+    aiCalling = true;
+
+    const bubble = document.getElementById('speech-bubble');
+    const bubbleText = bubble ? bubble.querySelector('.bubble-text') : null;
+    if (!bubble || !bubbleText) { aiCalling = false; return; }
+
+    // 先显示加载状态
+    bubbleText.textContent = '哇咔咔，黄一心宝贝 慢慢看 我都没看完呢';
+    bubble.style.display = 'block';
+
+    try {
+        const res = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer sk-ymrkjekqpkdmylfwstwyvpnplyobufdejujcblqmtjplkuxl'
+            },
+            body: JSON.stringify({
+                model: 'Qwen/Qwen3-8B',
+                messages: [
+                    {
+                        role: 'system',
+                        content: '你是一个恋爱大师，你的女主是黄一心，你叫做吴昌桦，接下来你要陪她一起看你给她制作的h5页面。，你最喜欢叫她老婆，小宝宝了。请用温柔、甜蜜、简短的语气回复（控制在150字以内），像男朋友在旁边陪她看一样。'
+                    },
+                    {
+                        role: 'user',
+                        content: '这是她现在看到的内容：' + visibleText
+                    }
+                ],
+                max_tokens: 150,
+                temperature: 0.8
+            })
+        });
+
+        const data = await res.json();
+        const reply = data.choices && data.choices[0] && data.choices[0].message
+            ? data.choices[0].message.content
+            : '';
+
+        if (reply) {
+            bubbleText.textContent = reply;
+        } else {
+            bubbleText.textContent = visibleText;
+        }
+    } catch (err) {
+        console.error('[AI调用失败]', err);
+        bubbleText.textContent = visibleText;
+    } finally {
+        aiCalling = false;
+    }
+}
+
+function throttle(fn, interval) {
+    let lastTime = 0;
+    let pending = null;
+    return function (...args) {
+        const now = Date.now();
+        clearTimeout(pending);
+        if (now - lastTime >= interval) {
+            lastTime = now;
+            fn.apply(this, args);
+        } else {
+            // 间隔内的最后一次调用，等间隔结束后执行
+            pending = setTimeout(() => {
+                lastTime = Date.now();
+                fn.apply(this, args);
+            }, interval - (now - lastTime));
+        }
+    };
+}
+
+const throttledCallAI = throttle(callAI, 3000);
+
+function getVisibleText() {
+    const bubble = document.getElementById('speech-bubble');
+    const bubbleText = bubble ? bubble.querySelector('.bubble-text') : null;
+    if (!bubble || !bubbleText) return;
+
+    const elements = document.querySelectorAll(
+        'h2, h3, p, span, div, button'
+    );
+    const viewportTop = window.scrollY;
+    const viewportBottom = viewportTop + window.innerHeight;
+    const texts = [];
+
+    elements.forEach(el => {
+        // 跳过气泡自身、不可见元素、fixed定位元素
+        if (bubble.contains(el)) return;
+        if (el.closest('#video-float') || el.closest('#speech-bubble')) return;
+        if (el.offsetParent === null && el.style.position !== 'fixed') return;
+        const style = getComputedStyle(el);
+        if (style.opacity === '0' || style.visibility === 'hidden' || style.display === 'none') return;
+
+        const rect = el.getBoundingClientRect();
+        const elTop = rect.top + window.scrollY;
+        const elBottom = elTop + rect.height;
+
+        // 判断元素是否在视口内
+        if (elBottom > viewportTop && elTop < viewportBottom) {
+            // 只取直接文本内容，避免重复收集子元素文字
+            const directText = Array.from(el.childNodes)
+                .filter(node => node.nodeType === Node.TEXT_NODE)
+                .map(node => node.textContent.trim())
+                .join('');
+            if (directText) {
+                texts.push(directText);
+            }
+        }
+    });
+
+    if (texts.length) {
+        const display = texts.join('，');
+        console.log('[当前可见文字]', texts.join(' | '));
+        bubble.style.display = 'block';
+        // 调用AI，让气泡展示AI回复（节流5秒内最多一次）
+        throttledCallAI(display);
+    } else {
+        bubble.style.display = 'none';
+    }
+}
+
+// 气泡跟随视频浮窗位置
+function updateBubblePosition() {
+    const videoFloat = document.getElementById('video-float');
+    const bubble = document.getElementById('speech-bubble');
+    if (!videoFloat || !bubble) return;
+    if (videoFloat.style.display === 'none') {
+        bubble.style.display = 'none';
+        return;
+    }
+    const vRect = videoFloat.getBoundingClientRect();
+    bubble.style.top = vRect.top + 'px';
+    bubble.style.right = (window.innerWidth - vRect.left + 8) + 'px';
+}
+
+window.addEventListener('scroll', debounce(function () {
+    getVisibleText();
+    updateBubblePosition();
+}, 300), { passive: true });
+
+// 定时刷新可见文字（处理非滚动触发的内容变化）
+setInterval(function () {
+    getVisibleText();
+    updateBubblePosition();
+}, 2000);

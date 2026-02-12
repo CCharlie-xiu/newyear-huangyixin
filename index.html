@@ -899,7 +899,7 @@
             position: fixed;
             top: 16px; right: 16px;
             width: 120px; height: 160px;
-            background: #000;
+            background: url('imgs/IMG_3024.jpg') center/cover no-repeat #000;
             border-radius: 16px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.25);
             z-index: 900;
@@ -959,6 +959,101 @@
             justify-content: center;
             font-size: 16px;
         }
+        #audio-btn.spinning {
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===== 气泡窗 ===== */
+        .speech-bubble {
+            position: fixed;
+            top: 16px;
+            right: 148px;
+            max-width: 200px;
+            max-height: 60vh;
+            z-index: 900;
+            display: none;
+            animation: bubbleFadeIn 0.4s ease forwards;
+            pointer-events: none;
+            filter: drop-shadow(0 4px 12px rgba(180,100,130,0.25));
+        }
+        .bubble-inner {
+            position: relative;
+            background: rgba(255,248,250,0.96);
+            border: 2px solid rgba(210,140,160,0.5);
+            border-radius: 14px;
+            padding: 12px 16px;
+            max-height: calc(60vh - 20px);
+        }
+        /* 藤蔓玫瑰边框 */
+        .bubble-inner::before {
+            content: '🌹🌿🌸🌿🌹';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            letter-spacing: 3px;
+            opacity: 0.85;
+            pointer-events: none;
+        }
+        .bubble-inner::after {
+            content: '🌿🌹🌸🌹🌿';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            letter-spacing: 3px;
+            opacity: 0.85;
+            pointer-events: none;
+        }
+        .bubble-text {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.7;
+            color: rgba(60,40,50,0.95);
+            word-break: break-all;
+        }
+        /* 气泡尾巴指向右侧视频 */
+        .bubble-tail {
+            position: absolute;
+            right: -7px;
+            top: 20px;
+            width: 14px;
+            height: 14px;
+            background: rgba(255,248,250,0.96);
+            transform: rotate(45deg);
+            border-right: 2px solid rgba(210,140,160,0.5);
+            border-top: 2px solid rgba(210,140,160,0.5);
+        }
+        /* 左下角小花 */
+        .bubble-flower {
+            position: absolute;
+            bottom: -10px;
+            left: 4px;
+            font-size: 20px;
+            opacity: 0.9;
+            transform: rotate(-15deg);
+            filter: drop-shadow(0 1px 3px rgba(200,80,120,0.3));
+        }
+        /* 右上角小花 */
+        .bubble-flower-top {
+            position: absolute;
+            top: -10px;
+            right: 4px;
+            font-size: 18px;
+            opacity: 0.85;
+            transform: rotate(12deg);
+            filter: drop-shadow(0 1px 3px rgba(200,80,120,0.3));
+        }
+        @keyframes bubbleFadeIn {
+            from { opacity: 0; transform: translateX(8px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
 
         /* ===== 工具类 ===== */
         .fade-section > * {
@@ -988,6 +1083,15 @@
             <source src="" type="video/mp4">
         </video>
         <button class="video-close" onclick="closeVideo()">✕</button>
+    </div>
+    <!-- 气泡窗 -->
+    <div id="speech-bubble" class="speech-bubble">
+        <div class="bubble-inner">
+            <span class="bubble-text"></span>
+        </div>
+        <div class="bubble-tail"></div>
+        <div class="bubble-flower">🌸</div>
+        <div class="bubble-flower-top">🌺</div>
     </div>
 
     <!-- Section 0: Intro 引导层 -->
@@ -1260,7 +1364,9 @@
         const bgm = document.getElementById('bgm');
         bgm.play().then(() => {
             audioPlaying = true;
-            document.getElementById('audio-btn').style.display = 'flex';
+            const btn = document.getElementById('audio-btn');
+            btn.style.display = 'flex';
+            btn.classList.add('spinning');
         }).catch(() => {
             document.getElementById('audio-btn').style.display = 'flex';
         });
@@ -1732,6 +1838,7 @@
             el.style.left = newLeft + 'px';
             el.style.top = newTop + 'px';
             el.style.right = 'auto';
+            if (typeof updateBubblePosition === 'function') updateBubblePosition();
         }
 
         function onEnd() {
@@ -1753,10 +1860,12 @@
         if (audioPlaying) {
             bgm.pause();
             btn.textContent = '🔇';
+            btn.classList.remove('spinning');
             audioPlaying = false;
         } else {
             bgm.play();
             btn.textContent = '🎵';
+            btn.classList.add('spinning');
             audioPlaying = true;
         }
     }
@@ -1766,6 +1875,7 @@
         const vf = document.getElementById('video-float');
         vf.style.display = 'none';
         vf.querySelector('video').pause();
+        document.getElementById('speech-bubble').style.display = 'none';
     }
 
     // ===== 滚动进度条 =====
