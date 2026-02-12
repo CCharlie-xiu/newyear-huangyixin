@@ -226,7 +226,6 @@ async function callAI(visibleText) {
     if (!bubble || !bubbleText) { aiCalling = false; return; }
 
     // 先显示加载状态
-    bubbleText.textContent = '哇咔咔，黄一心宝贝 慢慢看 我都没看完呢';
     bubble.style.display = 'block';
 
     try {
