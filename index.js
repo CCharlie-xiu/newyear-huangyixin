@@ -74,17 +74,17 @@ const TEXT_CONFIG = {
             '饭后的悠闲时光'
         ],
         gallery: [
-            'https://picsum.photos/seed/mem0/400/320',
-            'https://picsum.photos/seed/mem1/400/420',
-            'https://picsum.photos/seed/mem2/400/280',
-            'https://picsum.photos/seed/mem3/400/500',
-            'https://picsum.photos/seed/mem4/400/360',
-            'https://picsum.photos/seed/mem5/400/450',
-            'https://picsum.photos/seed/mem6/400/300',
-            'https://picsum.photos/seed/mem7/400/380',
-            'https://picsum.photos/seed/mem8/400/460',
-            'https://picsum.photos/seed/mem9/400/340',
-            'https://picsum.photos/seed/mem9/400/340'
+            'gallery/1.png',
+            'gallery/2.png',
+            'gallery/3.jpg',
+            'gallery/4.jpg',
+            'gallery/5.jpg',
+            'gallery/6.jpg',
+            'gallery/7.jpg',
+            'gallery/8.jpg',
+            'gallery/9.jpg',
+            'gallery/10.jpg',
+            'gallery/11.jpg'
         ]
     },
 
