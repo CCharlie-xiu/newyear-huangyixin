@@ -58,25 +58,26 @@ const TEXT_CONFIG = {
 
     // 回忆主体
     memories: {
-        title: '温暖瞬间',
+        title: '一闪一闪亮晶晶，满眼都是黄一心',
         sub: '每一帧都是故事',
         captions: [
-            '处理食材的认真模样',
-            '刀工了得',
-            '最美全家福',
-            '大厨上线',
-            '开饭啦',
-            '满满一桌幸福',
-            '干杯的瞬间',
-            '笑得最开心的时候',
-            '饭后的悠闲时光',
-            '最后的合影留念',
-            '饭后的悠闲时光'
+            '真是一个可爱的小宝宝每次看到我都很开心',
+            '哇咔咔好有爱呀好幸福这时候见面是真的很开心',
+            '这张我超级爱所以我要单独拿出来再放一次',
+            '韩国的大美女既视感超级美的一个回眸',
+            '这张拍的超级好记录一下咱俩的拍照生活',
+            '骑行高手美美带飞',
+            '给妈妈的鲜花先给咱俩美美来一张',
+            '这张表情真是太心动了',
+            '哇咔咔太可爱了这张晚上拍的这天真的很开心',
+            'qiaoqiaoqiao更是可爱',
+            '爱上美美的老婆',
+            '小小的老子大大的可爱'
         ],
         gallery: [
             'gallery/1.png',
-            'gallery/2.png',
             'gallery/3.jpg',
+            'gallery/2.png',
             'gallery/4.jpg',
             'gallery/5.jpg',
             'gallery/6.jpg',
@@ -84,14 +85,15 @@ const TEXT_CONFIG = {
             'gallery/8.jpg',
             'gallery/9.jpg',
             'gallery/10.jpg',
-            'gallery/11.jpg'
+            'gallery/11.jpg',
+            'gallery/12.jpg',
         ]
     },
 
     // 高光时刻
     highlight: {
         badge: '黄一心宝宝和吴昌桦宝宝的小家庭全家福',
-        imgSrc: 'https://picsum.photos/seed/together/600/400',
+        imgSrc: 'gallery/fn.jpg',
         title: '最珍贵的团聚',
         sub: '这一刻，所有的忙碌都值得'
     },
@@ -128,11 +130,11 @@ const MEDIA_CONFIG = {
     ],
 
     imgUrls: [
-        'https://picsum.photos/seed/fish/400/500',
-        'https://picsum.photos/seed/cook/400/600',
-        'https://picsum.photos/seed/family/400/400',
-        'https://picsum.photos/seed/dinner/400/550',
-        'https://picsum.photos/seed/feast/400/480'
+        'gallery/12.jpg',
+        'gallery/13.jpg',
+        'gallery/14.jpg',
+        'gallery/15.jpg',
+        'gallery/16.jpg',
     ],
 
     stickerImages: [

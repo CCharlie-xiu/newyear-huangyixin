@@ -415,23 +415,28 @@
 
         /* ===== 刮刮乐 ===== */
         .scratch-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            column-count: 2;
+            column-gap: 12px;
+            width: 100%;
             max-width: 400px;
             margin: 0 auto;
+        }
+        .scratch-grid .game-item {
+            break-inside: avoid;
+            margin-bottom: 12px;
+            display: block;
+            width: 100%;
         }
         .scratch-card {
             position: relative;
             border-radius: var(--radius);
             overflow: hidden;
             box-shadow: 0 4px 12px var(--shadow);
-            aspect-ratio: 4/3;
             width: 100%;
         }
         .scratch-card img {
-            width: 100%; height: 100%;
-            object-fit: cover; display: block;
+            width: 100%; height: auto;
+            display: block;
         }
         .scratch-card canvas {
             position: absolute; inset: 0;
@@ -448,16 +453,20 @@
 
         /* ===== 翻卡 ===== */
         .flip-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            column-count: 2;
+            column-gap: 12px;
             width: 100%;
             max-width: 400px;
             margin: 0 auto;
         }
+        .flip-grid .game-item {
+            break-inside: avoid;
+            margin-bottom: 12px;
+            display: block;
+            width: 100%;
+        }
         .flip-card-wrapper {
             perspective: 800px;
-            aspect-ratio: 4/3;
             width: 100%;
         }
         .flip-card-inner {
@@ -499,8 +508,8 @@
             background: var(--white);
         }
         .flip-back img {
-            width: 100%; height: 100%;
-            object-fit: cover; display: block;
+            width: 100%; height: auto;
+            display: block;
         }
 
         /* ===== 拼手速 ===== */
@@ -510,23 +519,17 @@
             text-align: center;
         }
         .speed-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
+            column-count: 2;
+            column-gap: 12px;
             width: 100%;
         }
-        .speed-grid .speed-item:last-child:nth-child(odd) {
-            grid-column: 1 / -1;
-            max-width: calc(50% - 6px);
-            justify-self: center;
-        }
         .speed-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            break-inside: avoid;
+            margin-bottom: 12px;
+            display: block;
+            width: 100%;
         }
         .speed-box {
-            aspect-ratio: 4/3;
             width: 100%;
             border-radius: var(--radius);
             display: flex;
@@ -560,7 +563,7 @@
         .speed-box .speed-img {
             position: absolute; inset: 0;
             width: 100%; height: 100%;
-            object-fit: cover;
+            object-fit: contain;
             opacity: 0;
             transition: opacity 0.6s ease;
             border-radius: var(--radius);
@@ -935,7 +938,7 @@
             position: fixed;
             top: 16px; right: 16px;
             width: 120px; height: 160px;
-            background: url('imgs/IMG_3024.jpg') center/cover no-repeat #000;
+            background: url('imgs/IMG_3025.jpg') center/cover no-repeat #000;
             border-radius: 16px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.25);
             z-index: 900;
@@ -1625,6 +1628,7 @@
 
             const wrapper = document.createElement('div');
             wrapper.className = 'flip-card-wrapper';
+            wrapper.style.aspectRatio = '4/3'; // 默认，图片加载后更新
             wrapper.innerHTML = `
                 <div class="flip-card-inner" onclick="this.classList.toggle('flipped')">
                     <div class="flip-face flip-front">
@@ -1636,6 +1640,16 @@
                     </div>
                 </div>
             `;
+
+            // 图片加载后按实际比例设置 wrapper
+            const img = wrapper.querySelector('.flip-back img');
+            function setRatio() {
+                if (img.naturalWidth && img.naturalHeight) {
+                    wrapper.style.aspectRatio = img.naturalWidth + '/' + img.naturalHeight;
+                }
+            }
+            img.addEventListener('load', setRatio);
+            if (img.complete) setRatio();
 
             const cap = document.createElement('div');
             cap.className = 'game-caption';
@@ -1669,11 +1683,22 @@
 
             const box = document.createElement('div');
             box.className = 'speed-box green';
+            box.style.aspectRatio = '4/3'; // 默认，图片加载后更新
             box.innerHTML = `
                 <span class="speed-text">等待开始...</span>
                 <img class="speed-img" src="${galleryUrls[imgIdx]}" loading="lazy" alt="${capTexts[imgIdx] || ''}">
             `;
             box.addEventListener('click', () => handleSpeedBoxClick(i));
+
+            // 图片加载后按实际比例设置 box
+            const speedImg = box.querySelector('.speed-img');
+            function setSpeedRatio() {
+                if (speedImg.naturalWidth && speedImg.naturalHeight) {
+                    box.style.aspectRatio = speedImg.naturalWidth + '/' + speedImg.naturalHeight;
+                }
+            }
+            speedImg.addEventListener('load', setSpeedRatio);
+            if (speedImg.complete) setSpeedRatio();
 
             const caption = document.createElement('div');
             caption.className = 'speed-caption';
