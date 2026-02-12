@@ -1,0 +1,2119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>回忆家宴 - 2025</title>
+    <style>
+        :root {
+            --bg: #FAF8F5;
+            --bg-dark: #F0EDE8;
+            --accent: #E8836B;
+            --accent-light: #FCEAE6;
+            --gold: #C9A96E;
+            --text: #1A1A1A;
+            --text-sub: #888888;
+            --text-light: #BBBBBB;
+            --white: #FFFFFF;
+            --shadow: rgba(0,0,0,0.08);
+            --radius: 16px;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
+            color: var(--text);
+            overflow: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        body.scrollable {
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* ===== Section 通用 ===== */
+        .section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 60px 24px;
+            position: relative;
+        }
+
+        /* ===== Intro 引导层 ===== */
+        #intro {
+            position: fixed; inset: 0;
+            background: #1a1a2e;
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+            overflow: hidden;
+        }
+        .aurora-beam {
+            position: absolute;
+            border-radius: 0;
+            opacity: 0;
+            filter: blur(0.5px);
+            pointer-events: none;
+        }
+        .aurora-glow {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 120px;
+            background: linear-gradient(to bottom,
+                rgba(100,220,200,0.15) 0%,
+                rgba(120,180,255,0.08) 40%,
+                transparent 100%
+            );
+            filter: blur(30px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        @keyframes auroraRise {
+            0% { opacity: 0; transform: translateY(100%) scaleY(0.3); }
+            20% { opacity: 1; }
+            60% { opacity: 0.8; transform: translateY(-10%) scaleY(1); }
+            100% { opacity: 0; transform: translateY(-30%) scaleY(0.6); }
+        }
+        #intro.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .intro-card {
+            background: var(--white);
+            border-radius: 28px;
+            padding: 40px 32px;
+            text-align: center;
+            width: 85%;
+            max-width: 320px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            transform: scale(1);
+            transition: transform 0.4s ease;
+            position: relative;
+            z-index: 1;
+        }
+        #intro.hidden .intro-card { transform: scale(0.9); }
+        .intro-icon {
+            font-size: 48px;
+            display: block;
+            margin-bottom: 16px;
+            animation: heartbeat 1.2s ease-in-out infinite;
+        }
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+        .intro-card h2 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+        .intro-card p {
+            font-size: 14px;
+            color: var(--text-sub);
+            margin-bottom: 28px;
+            line-height: 1.6;
+        }
+        .btn-start {
+            background: var(--accent);
+            color: var(--white);
+            border: none;
+            padding: 14px 0;
+            border-radius: 14px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            letter-spacing: 2px;
+        }
+        .btn-start:active {
+            transform: scale(0.97);
+            box-shadow: 0 4px 16px rgba(232,131,107,0.4);
+        }
+
+        /* ===== Cover 封面 ===== */
+        #cover {
+            min-height: 100vh;
+            background: linear-gradient(180deg, var(--bg) 0%, var(--accent-light) 100%);
+            text-align: center;
+        }
+        .cover-year {
+            font-size: 96px;
+            font-weight: 800;
+            color: var(--accent);
+            line-height: 1;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+        .cover-year.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .cover-title {
+            font-size: 22px;
+            font-weight: 600;
+            margin-top: 12px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease 0.2s;
+        }
+        .cover-title.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .cover-sub {
+            font-size: 14px;
+            color: var(--text-sub);
+            margin-top: 8px;
+            opacity: 0;
+            transition: opacity 0.8s ease 0.4s;
+        }
+        .cover-sub.visible { opacity: 1; }
+        .scroll-hint {
+            position: absolute;
+            bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            animation: fadeInUp 1s ease 1s forwards;
+        }
+        .scroll-hint span {
+            font-size: 12px;
+            color: var(--text-light);
+            letter-spacing: 2px;
+        }
+        .scroll-arrow {
+            width: 20px;
+            height: 20px;
+            border-right: 2px solid var(--text-light);
+            border-bottom: 2px solid var(--text-light);
+            transform: rotate(45deg);
+            animation: bounce 1.5s ease infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: rotate(45deg) translateY(0); }
+            50% { transform: rotate(45deg) translateY(6px); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== Stats 年度统计 ===== */
+        #stats {
+            min-height: 100vh;
+            padding: 60px 0;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        .stats-header {
+            text-align: center;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 10;
+        }
+        .stats-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .stats-grid {
+            position: relative;
+            width: 88vw;
+            max-width: 380px;
+            aspect-ratio: 1 / 0.96;
+            z-index: 10;
+        }
+        .stats-grid::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(232,131,107,0.22) 0%, rgba(232,131,107,0.12) 100%);
+            clip-path: polygon(
+                50% 13%, 54% 8%, 60% 4%, 67% 2%, 74% 3%, 80% 7%,
+                86% 14%, 92% 24%, 96% 35%, 97% 45%, 95% 56%,
+                89% 66%, 80% 76%, 68% 86%, 56% 94%, 50% 100%,
+                44% 94%, 32% 86%, 20% 76%, 11% 66%, 5% 56%,
+                3% 45%, 4% 35%, 8% 24%, 14% 14%, 20% 7%,
+                26% 3%, 33% 2%, 40% 4%, 46% 8%
+            );
+            filter: drop-shadow(0 0 6px rgba(232,131,107,0.3));
+            z-index: 0;
+        }
+        .stats-grid::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(180deg, rgba(232,131,107,0.5) 0%, rgba(232,131,107,0.25) 100%);
+            clip-path: polygon(
+                50% 13%, 54% 8%, 60% 4%, 67% 2%, 74% 3%, 80% 7%,
+                86% 14%, 92% 24%, 96% 35%, 97% 45%, 95% 56%,
+                89% 66%, 80% 76%, 68% 86%, 56% 94%, 50% 100%,
+                44% 94%, 32% 86%, 20% 76%, 11% 66%, 5% 56%,
+                3% 45%, 4% 35%, 8% 24%, 14% 14%, 20% 7%,
+                26% 3%, 33% 2%, 40% 4%, 46% 8%
+            );
+            z-index: -1;
+        }
+        .stat-item {
+            position: absolute;
+            text-align: center;
+            transform: translate(-50%, -50%) scale(0.7);
+            opacity: 0;
+            transition: opacity 0.7s ease, transform 0.7s ease;
+            white-space: nowrap;
+            z-index: 1;
+        }
+        .stat-item.visible {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1) !important;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #333;
+            display: block;
+            margin-bottom: 2px;
+            text-shadow: 0 0 8px rgba(255,255,255,0.9);
+        }
+        .stat-value {
+            font-weight: 800;
+            color: var(--accent);
+            line-height: 1.1;
+            display: block;
+            text-shadow: 0 0 10px rgba(255,255,255,0.8), 0 1px 3px rgba(232,131,107,0.3);
+        }
+        .stat-unit {
+            font-size: 13px;
+            font-weight: 400;
+            color: #555;
+            margin-left: 2px;
+            text-shadow: 0 0 8px rgba(255,255,255,0.9);
+        }
+
+        /* ===== Timeline 时间锚点 ===== */
+        #timeline {
+            min-height: auto;
+            padding: 80px 24px;
+            background: #faf8f505;
+            z-index: 2;
+        }
+        .timeline-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        .timeline-header h2 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .timeline-header p {
+            font-size: 13px;
+            color: var(--text-sub);
+            margin-top: 6px;
+        }
+        .timeline-track {
+            position: relative;
+            padding-left: 28px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .timeline-track::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--bg-dark);
+        }
+        .timeline-node {
+            position: relative;
+            margin-bottom: 36px;
+            opacity: 0;
+            transform: translateX(-16px);
+            transition: all 0.5s ease;
+        }
+        .timeline-node.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .timeline-node::before {
+            content: '';
+            position: absolute;
+            left: -24px;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--bg-dark);
+            border: 2px solid var(--white);
+            transition: background 0.3s;
+        }
+        .timeline-node.visible::before {
+            background: var(--accent);
+        }
+        .timeline-node h3 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .timeline-node p {
+            font-size: 13px;
+            color: var(--text-sub);
+            margin-top: 4px;
+            line-height: 1.5;
+        }
+
+        /* ===== Games 游戏区通用 ===== */
+        .game-section {
+            min-height: auto;
+            padding: 60px 16px;
+            background: var(--bg);
+            position: relative;
+            z-index: 2;
+        }
+        .game-header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 0 8px;
+        }
+        .game-header h2 { font-size: 24px; font-weight: 700; }
+        .game-header p { font-size: 13px; color: var(--text-sub); margin-top: 6px; }
+        .game-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+        .game-item.visible { opacity: 1; transform: translateY(0); }
+        .game-caption {
+            font-size: 11px;
+            color: var(--text-sub);
+            text-align: center;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        /* ===== 刮刮乐 ===== */
+        .scratch-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .scratch-card {
+            position: relative;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 4px 12px var(--shadow);
+            aspect-ratio: 4/3;
+            width: 100%;
+        }
+        .scratch-card img {
+            width: 100%; height: 100%;
+            object-fit: cover; display: block;
+        }
+        .scratch-card canvas {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            cursor: pointer;
+            touch-action: none;
+        }
+        .scratch-hint {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-sub);
+            margin-top: 12px;
+        }
+
+        /* ===== 翻卡 ===== */
+        .flip-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .flip-card-wrapper {
+            perspective: 800px;
+            aspect-ratio: 4/3;
+            width: 100%;
+        }
+        .flip-card-inner {
+            position: relative;
+            width: 100%; height: 100%;
+            transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            cursor: pointer;
+            border-radius: var(--radius);
+        }
+        .flip-card-inner.flipped {
+            transform: rotateY(180deg);
+        }
+        .flip-face {
+            position: absolute; inset: 0;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+        .flip-front {
+            background: linear-gradient(135deg, var(--accent-light), #ffd6cc);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            z-index: 2;
+        }
+        .flip-front .flip-icon { font-size: 36px; }
+        .flip-front .flip-label {
+            font-size: 13px;
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .flip-back {
+            transform: rotateY(180deg);
+            background: var(--white);
+        }
+        .flip-back img {
+            width: 100%; height: 100%;
+            object-fit: cover; display: block;
+        }
+
+        /* ===== 拼手速 ===== */
+        .speed-area {
+            margin: 0;
+            width: 100%;
+            text-align: center;
+        }
+        .speed-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            width: 100%;
+        }
+        .speed-grid .speed-item:last-child:nth-child(odd) {
+            grid-column: 1 / -1;
+            max-width: calc(50% - 6px);
+            justify-self: center;
+        }
+        .speed-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .speed-box {
+            aspect-ratio: 4/3;
+            width: 100%;
+            border-radius: var(--radius);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.4s ease;
+            box-shadow: 0 4px 16px var(--shadow);
+            user-select: none;
+            -webkit-user-select: none;
+            position: relative;
+            overflow: hidden;
+        }
+        .speed-box.green { background: #4CAF50; }
+        .speed-box.yellow { background: #FFC107; }
+        .speed-box.pink { background: #FF69B4; }
+        .speed-box.revealed {
+            background: transparent;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+        .speed-box .speed-text {
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 0 8px;
+            text-align: center;
+            line-height: 1.5;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        }
+        .speed-box .speed-img {
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+            border-radius: var(--radius);
+        }
+        .speed-box .speed-img.show { opacity: 1; }
+        .speed-caption {
+            font-size: 11px;
+            color: var(--text-sub);
+            text-align: center;
+            margin-top: 6px;
+            line-height: 1.4;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .speed-caption.show { opacity: 1; }
+        .speed-hint {
+            margin-top: 16px;
+            font-size: 13px;
+            color: var(--text-sub);
+            line-height: 1.6;
+        }
+        .speed-toast {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: rgba(0,0,0,0.85);
+            color: #fff;
+            padding: 20px 32px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            z-index: 9999;
+            opacity: 0;
+            transition: all 0.3s ease;
+            text-align: center;
+            line-height: 1.6;
+            pointer-events: none;
+        }
+        .speed-toast.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        /* ===== Highlight 高光时刻 ===== */
+        #highlight {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #faf8f52e 0%, #FFF5F0 50%, #faf8f521 100%);
+            text-align: center;
+            z-index: 2;
+        }
+        .highlight-badge {
+            display: inline-block;
+            background: var(--accent);
+            color: var(--white);
+            font-size: 12px;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 20px;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+        .highlight-badge.visible { opacity: 1; }
+        .highlight-img {
+            width: 90%;
+            max-width: 360px;
+            border-radius: 20px;
+            box-shadow: 0 16px 48px rgba(232,131,107,0.2);
+            opacity: 0;
+            transform: scale(0.95);
+            transition: all 0.8s ease 0.2s;
+        }
+        .highlight-img.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+        .highlight-text {
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 24px;
+            opacity: 0;
+            transition: opacity 0.6s ease 0.4s;
+        }
+        .highlight-text.visible { opacity: 1; }
+        .highlight-sub {
+            font-size: 13px;
+            color: var(--text-sub);
+            margin-top: 8px;
+            opacity: 0;
+            transition: opacity 0.6s ease 0.6s;
+        }
+        .highlight-sub.visible { opacity: 1; }
+
+        /* ===== Pause 减速区 ===== */
+        #pause {
+            min-height: 80vh;
+            background: var(--bg);
+            text-align: center;
+        }
+        .pause-line {
+            width: 1px;
+            height: 80px;
+            background: var(--text-light);
+            margin: 0 auto 32px;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        .pause-line.visible { opacity: 1; }
+        .pause-text {
+            font-size: 16px;
+            color: var(--text-sub);
+            line-height: 2;
+            opacity: 0;
+            transition: opacity 1s ease 0.3s;
+        }
+        .pause-text.visible { opacity: 1; }
+
+        /* ===== Ending 自动序列 ===== */
+        .ending-stage {
+            position: relative;
+            min-height: 100vh;
+            background: var(--bg);
+            overflow: hidden;
+        }
+
+        /* 回顾卡片 */
+        .review-cards {
+            position: absolute; inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3;
+            pointer-events: none;
+        }
+        .review-card {
+            position: absolute;
+            width: 55vw; max-width: 220px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+            opacity: 0;
+            transform: scale(1.8) rotate(0deg);
+            transition: none;
+        }
+        .review-card img {
+            width: 100%; display: block;
+        }
+
+        /* 告别文字 */
+        .farewell-text {
+            position: absolute; inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--text);
+            z-index: 2;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+        .farewell-text.show { opacity: 1; }
+        .farewell-text.hide {
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+
+        /* 洗白遮罩 → 改为柔粉渐变 */
+        .wash-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(180deg, rgba(255,240,245,0.9) 0%, rgba(255,228,235,0.95) 100%);
+            z-index: 4;
+            opacity: 0;
+            transition: opacity 2s ease;
+        }
+        .wash-overlay.active { opacity: 1; }
+
+        /* 2026 音符飘入 */
+        .year-forward {
+            position: absolute; inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            z-index: 6;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+        .year-forward.show { opacity: 1; }
+
+        /* 粉色花瓣粒子 */
+        .petal {
+            position: absolute;
+            background: linear-gradient(135deg, #ffb7c5, #ff85a1);
+            border-radius: 50% 0 50% 50%;
+            opacity: 0;
+            pointer-events: none;
+            box-shadow: 0 2px 5px rgba(255, 133, 161, 0.3);
+            z-index: 5;
+        }
+        @keyframes enhancedBurst {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+                opacity: 0;
+            }
+            15% {
+                opacity: 1;
+            }
+            40% {
+                transform: translate(var(--tx), var(--ty)) rotate(180deg);
+            }
+            100% {
+                transform: translate(calc(var(--tx) + var(--drift)), calc(var(--ty) + 400px)) rotate(var(--rot));
+                opacity: 0;
+            }
+        }
+
+        /* 白纱飘扬 */
+        .veil-layer {
+            position: absolute; inset: 0;
+            z-index: 5;
+            overflow: hidden;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+        }
+        .veil-layer.show { opacity: 1; }
+        .veil-strip {
+            position: absolute;
+            background: linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 100%);
+            border-radius: 0 0 50% 50%;
+            filter: blur(2px);
+        }
+        @keyframes veilFlow {
+            0% { transform: translateY(-100%) skewX(-5deg); opacity: 0; }
+            20% { opacity: 0.8; }
+            100% { transform: translateY(110vh) skewX(8deg); opacity: 0; }
+        }
+        .year-char {
+            font-size: 108px;
+            font-weight: 600;
+            color: #C4788A;
+            opacity: 0;
+            display: inline-block;
+            animation: none;
+        }
+        .year-char.float-in {
+            animation: noteFloat 1.6s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+        }
+        .year-char:nth-child(1) { animation-delay: 0s; }
+        .year-char:nth-child(2) { animation-delay: 0.25s; }
+        .year-char:nth-child(3) { animation-delay: 0.5s; }
+        .year-char:nth-child(4) { animation-delay: 0.75s; }
+
+        @keyframes noteFloat {
+            0% {
+                opacity: 0;
+                transform: translateY(100px) scale(0.3);
+            }
+            12% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            24% {
+                transform: translateY(-40px) scale(1.08);
+            }
+            36% {
+                transform: translateY(0) scale(0.95);
+            }
+            48% {
+                transform: translateY(-18px) scale(1.04);
+            }
+            58% {
+                transform: translateY(0) scale(0.98);
+            }
+            68% {
+                transform: translateY(-7px) scale(1.02);
+            }
+            78% {
+                transform: translateY(0) scale(0.99);
+            }
+            86% {
+                transform: translateY(-2px) scale(1.01);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* 2026 向上渐变消失 */
+        .year-forward.fade-up {
+            animation: yearFadeUp 1.2s ease forwards;
+        }
+        @keyframes yearFadeUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-80px); }
+        }
+
+        /* 祝福语气球容器 */
+        .blessings-container {
+            position: absolute; inset: 0;
+            z-index: 7;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        /* 单个祝福语气球 */
+        .blessing-balloon {
+            position: absolute;
+            font-weight: 900;
+            color: #C4788A;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            text-shadow: 0 2px 8px rgba(196,120,138,0.3);
+        }
+        .blessing-balloon.visible {
+            opacity: 1;
+        }
+
+        /* ===== 背景贴纸 ===== */
+        .bg-sticker {
+            position: absolute;
+            min-width: 100px;
+            max-width: 160px;
+            height: auto;
+            opacity: 0.6;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* ===== 浮窗视频 ===== */
+        #video-float {
+            position: fixed;
+            top: 16px; right: 16px;
+            width: 120px; height: 160px;
+            background: #000;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            z-index: 900;
+            border: 2px solid var(--white);
+            overflow: hidden;
+            touch-action: none;
+            cursor: move;
+            display: none;
+            transition: box-shadow 0.3s;
+        }
+        #video-float:active {
+            box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+        }
+        #video-float video {
+            width: 100%; height: 100%;
+            object-fit: cover;
+        }
+        .video-close {
+            position: absolute;
+            top: 6px; right: 6px;
+            width: 22px; height: 22px;
+            background: rgba(0,0,0,0.5);
+            border: none;
+            border-radius: 50%;
+            color: #fff;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ===== 进度指示器 ===== */
+        #progress-bar {
+            position: fixed;
+            top: 0; left: 0;
+            height: 3px;
+            background: var(--accent);
+            z-index: 800;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        /* ===== 音频控制 ===== */
+        #audio-btn {
+            position: fixed;
+            top: 16px; left: 16px;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: var(--white);
+            border: none;
+            box-shadow: 0 2px 12px var(--shadow);
+            z-index: 800;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        /* ===== 工具类 ===== */
+        .fade-section > * {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+        .fade-section > .visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- 进度条 -->
+    <div id="progress-bar"></div>
+
+    <!-- 音频控制按钮 -->
+    <button id="audio-btn" onclick="toggleAudio()">🎵</button>
+    <audio id="bgm" loop preload="auto">
+        <!-- 替换为实际音乐文件路径，如: <source src="bgm.mp3" type="audio/mpeg"> -->
+    </audio>
+
+    <!-- 浮窗视频 -->
+    <div id="video-float">
+        <video autoplay muted playsinline id="float-video">>
+            <source src="" type="video/mp4">
+        </video>
+        <button class="video-close" onclick="closeVideo()">✕</button>
+    </div>
+
+    <!-- Section 0: Intro 引导层 -->
+    <div id="intro">
+        <div class="aurora-glow"></div>
+        <div class="intro-card">
+            <span class="intro-icon"></span>
+            <h2></h2>
+            <p></p>
+            <button class="btn-start" onclick="startMemory()"></button>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <main id="main-content" style="position:relative;overflow:hidden;">
+
+        <!-- Section 1: Cover 封面 -->
+        <section id="cover" class="section">
+            <div class="cover-year"></div>
+            <div class="cover-title"></div>
+            <div class="cover-sub"></div>
+            <div class="scroll-hint">
+                <span></span>
+                <div class="scroll-arrow"></div>
+            </div>
+        </section>
+
+        <!-- Section 1.5: Stats 年度统计 -->
+        <section id="stats" class="section">
+            <div class="stats-header">
+                <h2></h2>
+            </div>
+            <div class="stats-grid" id="stats-grid">
+                <!-- JS 动态生成 -->
+            </div>
+        </section>
+
+        <!-- Section 2: Timeline 时间锚点 -->
+        <section id="timeline" class="section">
+            <div class="timeline-header">
+                <h2></h2>
+                <p></p>
+            </div>
+            <div class="timeline-track" id="timeline-track">
+                <!-- JS 动态生成 -->
+            </div>
+        </section>
+
+        <!-- Section 3a: 刮刮乐 -->
+        <section id="scratch-game" class="section game-section">
+            <div class="game-header">
+                <h2>刮刮乐</h2>
+                <p>用手指刮开涂层，看看藏着什么回忆</p>
+            </div>
+            <div class="scratch-grid" id="scratch-grid">
+                <!-- JS 动态生成 -->
+            </div>
+            <div class="scratch-hint">用手指在卡片上滑动刮开</div>
+        </section>
+
+        <!-- Section 3b: 翻卡 -->
+        <section id="flip-game" class="section game-section">
+            <div class="game-header">
+                <h2>翻卡</h2>
+                <p>点击卡片，翻开隐藏的温暖瞬间</p>
+            </div>
+            <div class="flip-grid" id="flip-grid">
+                <!-- JS 动态生成 -->
+            </div>
+        </section>
+
+        <!-- Section 3c: 拼手速 -->
+        <section id="speed-game" class="section game-section">
+            <div class="game-header">
+                <h2>拼手速</h2>
+                <p>考验你的反应力，抓住正确时机</p>
+            </div>
+            <div class="speed-area" id="speed-area">
+                <div class="speed-grid" id="speed-grid">
+                    <!-- JS 动态生成3个色块 -->
+                </div>
+                <div class="speed-hint">提示：当亮黄色的时候点击就可以看到照片啦~</div>
+            </div>
+        </section>
+        <!-- 拼手速全局提示 -->
+        <div class="speed-toast" id="speed-toast"></div>
+
+        <!-- Section 4: Highlight 高光时刻 -->
+        <section id="highlight" class="section">
+            <div class="highlight-badge"></div>
+            <img class="highlight-img" src="" alt="">
+            <div class="highlight-text"></div>
+            <div class="highlight-sub"></div>
+        </section>
+
+        <!-- Section 5: Pause 减速区 -->
+        <section id="pause" class="section">
+            <div class="pause-line"></div>
+            <div class="pause-text"></div>
+        </section>
+
+        <!-- Section 6: Ending 自动序列 -->
+        <section id="ending" class="section ending-stage">
+            <!-- 回顾卡片层 -->
+            <div class="review-cards" id="review-cards"></div>
+            <!-- 告别文字 -->
+            <div class="farewell-text"></div>
+            <!-- 时间洗白遮罩 -->
+            <div class="wash-overlay"></div>
+            <!-- 白纱飘扬层 -->
+            <div class="veil-layer" id="veil-layer"></div>
+            <!-- 花瓣容器 -->
+            <div id="petals-container" style="position:absolute;inset:0;z-index:5;pointer-events:none;overflow:hidden;"></div>
+            <!-- 2026 音符飘入 -->
+            <div class="year-forward" id="year-forward">
+            </div>
+            <!-- 祝福语气球容器 -->
+            <div class="blessings-container" id="blessings-container"></div>
+        </section>
+
+    </main>
+
+<script src="index.js"></script>
+<script>
+    // ===== 状态机 =====
+    const STAGES = ['intro','cover','stats','timeline','scratch-game','flip-game','speed-game','highlight','pause','ending'];
+    let currentStage = 'intro';
+    let audioPlaying = false;
+    let endingTriggered = false;
+
+    // ===== 从 index.js 引用数据配置 =====
+    const timelineData = TEXT_CONFIG.timeline.data;
+    const imgUrls = MEDIA_CONFIG.imgUrls;
+    const captions = TEXT_CONFIG.memories.captions;
+    const stickerImages = MEDIA_CONFIG.stickerImages;
+
+    // ===== 用配置填充页面文字 =====
+    function initText() {
+        document.title = TEXT_CONFIG.pageTitle;
+
+        // 背景音乐
+        if (MEDIA_CONFIG.bgmSrc) {
+            const bgm = document.getElementById('bgm');
+            bgm.src = MEDIA_CONFIG.bgmSrc;
+        }
+
+        // 浮窗视频轮播
+        const floatVideo = document.getElementById('float-video');
+        const videoList = MEDIA_CONFIG.videoSrc;
+        let videoIdx = 0;
+        floatVideo.src = videoList[0];
+        floatVideo.addEventListener('ended', () => {
+            videoIdx = (videoIdx + 1) % videoList.length;
+            floatVideo.src = videoList[videoIdx];
+            floatVideo.play();
+        });
+
+        // Intro
+        const intro = document.querySelector('.intro-card');
+        intro.querySelector('.intro-icon').textContent = TEXT_CONFIG.intro.icon;
+        intro.querySelector('h2').textContent = TEXT_CONFIG.intro.title;
+        intro.querySelector('p').innerHTML = TEXT_CONFIG.intro.desc;
+        intro.querySelector('.btn-start').textContent = TEXT_CONFIG.intro.btn;
+
+        // Cover
+        document.querySelector('.cover-year').textContent = TEXT_CONFIG.cover.year;
+        document.querySelector('.cover-title').textContent = TEXT_CONFIG.cover.title;
+        document.querySelector('.cover-sub').textContent = TEXT_CONFIG.cover.sub;
+        document.querySelector('.scroll-hint span').textContent = TEXT_CONFIG.cover.scrollHint;
+
+        // Stats header
+        document.querySelector('.stats-header h2').textContent = TEXT_CONFIG.stats.title;
+
+        // Timeline header
+        const tlHeader = document.querySelector('.timeline-header');
+        tlHeader.querySelector('h2').textContent = TEXT_CONFIG.timeline.title;
+        tlHeader.querySelector('p').textContent = TEXT_CONFIG.timeline.sub;
+
+        // Highlight
+        document.querySelector('.highlight-badge').textContent = TEXT_CONFIG.highlight.badge;
+        const hlImg = document.querySelector('.highlight-img');
+        hlImg.src = TEXT_CONFIG.highlight.imgSrc;
+        hlImg.alt = TEXT_CONFIG.highlight.badge;
+        document.querySelector('.highlight-text').textContent = TEXT_CONFIG.highlight.title;
+        document.querySelector('.highlight-sub').textContent = TEXT_CONFIG.highlight.sub;
+
+        // Pause
+        document.querySelector('.pause-text').innerHTML = TEXT_CONFIG.pause.text;
+
+        // Ending
+        document.querySelector('.farewell-text').textContent = TEXT_CONFIG.ending.farewell;
+
+        // Year chars
+        const yearContainer = document.getElementById('year-forward');
+        TEXT_CONFIG.ending.yearChars.forEach(ch => {
+            const span = document.createElement('span');
+            span.className = 'year-char';
+            span.textContent = ch;
+            yearContainer.appendChild(span);
+        });
+    }
+    initText();
+
+    // ===== 极光光束 =====
+    (function initAurora() {
+        const intro = document.getElementById('intro');
+        const colors = [
+            'rgba(80,200,255,0.7)',
+            'rgba(100,240,180,0.6)',
+            'rgba(180,120,255,0.6)',
+            'rgba(60,180,220,0.5)',
+            'rgba(140,255,200,0.5)',
+            'rgba(200,160,255,0.55)'
+        ];
+        function zigzagClip(segs) {
+            const pts = [];
+            for (let i = 0; i <= segs; i++) {
+                const y = (i / segs * 100).toFixed(1);
+                const x = i % 2 === 0 ? '0%' : '100%';
+                pts.push(`${x} ${y}%`);
+            }
+            for (let i = segs; i >= 0; i--) {
+                const y = (i / segs * 100).toFixed(1);
+                const x = i % 2 === 0 ? '35%' : '65%';
+                pts.push(`${x} ${y}%`);
+            }
+            return `polygon(${pts.join(',')})`;
+        }
+        function spawnBeam() {
+            const beam = document.createElement('div');
+            beam.className = 'aurora-beam';
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            const x = Math.random() * 100;
+            const h = 60 + Math.random() * 50;
+            const w = 16 + Math.random() * 20;
+            const dur = 3 + Math.random() * 4;
+            const delay = Math.random() * 0.5;
+            const segs = 6 + Math.floor(Math.random() * 6);
+            beam.style.cssText = `
+                left:${x}%;bottom:0;
+                width:${w}px;height:${h}vh;
+                background:linear-gradient(to top, transparent, ${color} 40%, ${color} 60%, transparent);
+                clip-path:${zigzagClip(segs)};
+                animation:auroraRise ${dur}s ease ${delay}s forwards;
+            `;
+            intro.appendChild(beam);
+            beam.addEventListener('animationend', () => beam.remove());
+        }
+        for (let i = 0; i < 15; i++) {
+            setTimeout(() => spawnBeam(), i * 200);
+        }
+        setInterval(() => {
+            if (intro.style.display === 'none') return;
+            for (let i = 0; i < 3; i++) {
+                setTimeout(() => spawnBeam(), i * 300);
+            }
+        }, 1500);
+    })();
+
+    // ===== 核心：开启回忆 =====
+    function startMemory() {
+        const intro = document.getElementById('intro');
+        intro.classList.add('hidden');
+        intro.addEventListener('transitionend', () => {
+            intro.style.display = 'none';
+        }, { once: true });
+        document.body.classList.add('scrollable');
+
+        // 播放音频
+        const bgm = document.getElementById('bgm');
+        bgm.play().then(() => {
+            audioPlaying = true;
+            document.getElementById('audio-btn').style.display = 'flex';
+        }).catch(() => {
+            document.getElementById('audio-btn').style.display = 'flex';
+        });
+
+        // 显示浮窗视频
+        document.getElementById('video-float').style.display = 'block';
+
+        // 初始化内容
+        buildStats();
+        buildTimeline();
+        buildScratchGame();
+        buildFlipGame();
+        initSpeedGame();
+
+        // 激活封面动画
+        setStage('cover');
+        setTimeout(() => {
+            document.querySelector('.cover-year').classList.add('visible');
+            document.querySelector('.cover-title').classList.add('visible');
+            document.querySelector('.cover-sub').classList.add('visible');
+        }, 100);
+
+        // 启动观察器
+        initObservers();
+        enableDrag(document.getElementById('video-float'));
+        setTimeout(scatterStickers, 500);
+    }
+
+    // ===== 状态切换 =====
+    function setStage(stage) {
+        const idx = STAGES.indexOf(stage);
+        const curIdx = STAGES.indexOf(currentStage);
+        if (idx > curIdx) {
+            currentStage = stage;
+        }
+    }
+
+    // ===== 构建统计页 =====
+    function buildStats() {
+        const grid = document.getElementById('stats-grid');
+        // 爱心内部填充坐标 (left%, top%) + 视觉权重
+        const layout = [
+            { left: 25, top: 18, fs: 40, bold: true  },
+            { left: 72, top: 15, fs: 28, bold: false },
+            { left: 50, top: 32, fs: 49, bold: true  },
+            { left: 22, top: 46, fs: 26, bold: false },
+            { left: 78, top: 49, fs: 34, bold: true  },
+            { left: 35, top: 63, fs: 32, bold: false },
+            { left: 65, top: 62, fs: 28, bold: true  },
+            { left: 50, top: 78, fs: 42, bold: true  }
+        ];
+        TEXT_CONFIG.stats.items.forEach((item, i) => {
+            const p = layout[i];
+            const div = document.createElement('div');
+            div.className = 'stat-item';
+            div.style.left = p.left + '%';
+            div.style.top = p.top + '%';
+            const w = p.bold ? 'font-weight:900;' : 'font-weight:700;';
+            div.innerHTML = `<span class="stat-label">${item.label}</span><span class="stat-value" style="font-size:${p.fs}px;${w}">${item.value}<span class="stat-unit">${item.unit}</span></span>`;
+            grid.appendChild(div);
+        });
+    }
+
+    // ===== 构建时间轴 =====
+    function buildTimeline() {
+        const track = document.getElementById('timeline-track');
+        timelineData.forEach(item => {
+            const node = document.createElement('div');
+            node.className = 'timeline-node';
+            node.innerHTML = `<h3>${item.month}</h3><p>${item.text}</p>`;
+            track.appendChild(node);
+        });
+    }
+
+    // ===== 构建刮刮乐 =====
+    function buildScratchGame() {
+        const grid = document.getElementById('scratch-grid');
+        const galleryUrls = TEXT_CONFIG.memories.gallery;
+        // 使用前4张图片
+        for (let i = 0; i < 4; i++) {
+            const item = document.createElement('div');
+            item.className = 'game-item';
+
+            const card = document.createElement('div');
+            card.className = 'scratch-card';
+            card.innerHTML = `<img src="${galleryUrls[i]}" loading="lazy" alt="${captions[i] || ''}">`;
+
+            const cap = document.createElement('div');
+            cap.className = 'game-caption';
+            cap.textContent = captions[i] || '';
+
+            item.appendChild(card);
+            item.appendChild(cap);
+            grid.appendChild(item);
+
+            // 等图片加载后初始化canvas
+            const img = card.querySelector('img');
+            img.addEventListener('load', () => {
+                const canvas = document.createElement('canvas');
+                card.appendChild(canvas);
+                initScratchCanvas(canvas, card);
+            });
+            // 如果图片已缓存
+            if (img.complete) {
+                const canvas = document.createElement('canvas');
+                card.appendChild(canvas);
+                initScratchCanvas(canvas, card);
+            }
+        }
+    }
+
+    function initScratchCanvas(canvas, card) {
+        const rect = card.getBoundingClientRect();
+        const w = rect.width || 200;
+        const h = rect.height || 150;
+        canvas.width = w * 2;
+        canvas.height = h * 2;
+        canvas.style.width = w + 'px';
+        canvas.style.height = h + 'px';
+
+        const ctx = canvas.getContext('2d');
+        ctx.scale(2, 2);
+
+        // 绘制刮刮乐涂层
+        ctx.fillStyle = '#C9A96E';
+        ctx.fillRect(0, 0, w, h);
+
+        // 添加装饰文字
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 16px PingFang SC, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('刮开看看', w / 2, h / 2 - 10);
+        ctx.font = '12px PingFang SC, sans-serif';
+        ctx.fillText('用手指滑动', w / 2, h / 2 + 14);
+
+        // 添加星星装饰
+        ctx.font = '20px serif';
+        ctx.fillText('✨', w / 2 - 50, h / 2);
+        ctx.fillText('✨', w / 2 + 50, h / 2);
+
+        let scratching = false;
+        let scratchedPixels = 0;
+        const totalPixels = w * h;
+
+        function scratch(x, y) {
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.beginPath();
+            ctx.arc(x, y, 20, 0, Math.PI * 2);
+            ctx.fill();
+            scratchedPixels += Math.PI * 20 * 20;
+            // 刮开超过40%自动移除涂层
+            if (scratchedPixels > totalPixels * 0.4) {
+                canvas.style.transition = 'opacity 0.5s';
+                canvas.style.opacity = '0';
+                setTimeout(() => canvas.remove(), 500);
+            }
+        }
+
+        function getPos(e) {
+            const r = canvas.getBoundingClientRect();
+            const touch = e.touches ? e.touches[0] : e;
+            return { x: touch.clientX - r.left, y: touch.clientY - r.top };
+        }
+
+        canvas.addEventListener('mousedown', (e) => { scratching = true; const p = getPos(e); scratch(p.x, p.y); });
+        canvas.addEventListener('mousemove', (e) => { if (scratching) { const p = getPos(e); scratch(p.x, p.y); } });
+        canvas.addEventListener('mouseup', () => { scratching = false; });
+        canvas.addEventListener('mouseleave', () => { scratching = false; });
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); scratching = true; const p = getPos(e); scratch(p.x, p.y); }, { passive: false });
+        canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if (scratching) { const p = getPos(e); scratch(p.x, p.y); } }, { passive: false });
+        canvas.addEventListener('touchend', () => { scratching = false; });
+    }
+
+    // ===== 构建翻卡 =====
+    function buildFlipGame() {
+        const grid = document.getElementById('flip-grid');
+        const galleryUrls = TEXT_CONFIG.memories.gallery;
+        const icons = ['🎁', '💝', '🌟', '🎀'];
+        // 使用第5-8张图片
+        for (let i = 0; i < 4; i++) {
+            const item = document.createElement('div');
+            item.className = 'game-item';
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'flip-card-wrapper';
+            wrapper.innerHTML = `
+                <div class="flip-card-inner" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-face flip-front">
+                        <span class="flip-icon">${icons[i]}</span>
+                        <span class="flip-label">点击翻开</span>
+                    </div>
+                    <div class="flip-face flip-back">
+                        <img src="${galleryUrls[i + 4]}" loading="lazy" alt="${captions[i + 4] || ''}">
+                    </div>
+                </div>
+            `;
+
+            const cap = document.createElement('div');
+            cap.className = 'game-caption';
+            cap.textContent = captions[i + 4] || '';
+
+            item.appendChild(wrapper);
+            item.appendChild(cap);
+            grid.appendChild(item);
+        }
+    }
+
+    // ===== 拼手速游戏（3个独立色块） =====
+    let speedBoxes = []; // 每个box的独立状态
+
+    function initSpeedGame() {
+        const grid = document.getElementById('speed-grid');
+        const galleryUrls = TEXT_CONFIG.memories.gallery;
+        const capTexts = TEXT_CONFIG.memories.captions;
+        const indices = [8, 9, 10,11];
+
+        indices.forEach((imgIdx, i) => {
+            const state = {
+                phase: 'waiting',
+                colorTimer: null,
+                el: null,
+                captionEl: null
+            };
+
+            const item = document.createElement('div');
+            item.className = 'speed-item';
+
+            const box = document.createElement('div');
+            box.className = 'speed-box green';
+            box.innerHTML = `
+                <span class="speed-text">等待开始...</span>
+                <img class="speed-img" src="${galleryUrls[imgIdx]}" loading="lazy" alt="${capTexts[imgIdx] || ''}">
+            `;
+            box.addEventListener('click', () => handleSpeedBoxClick(i));
+
+            const caption = document.createElement('div');
+            caption.className = 'speed-caption';
+            caption.textContent = capTexts[imgIdx] || '';
+
+            item.appendChild(box);
+            item.appendChild(caption);
+            grid.appendChild(item);
+
+            state.el = box;
+            state.captionEl = caption;
+            speedBoxes.push(state);
+        });
+    }
+
+    function startAllSpeedBoxes() {
+        speedBoxes.forEach((state, i) => {
+            if (state.phase !== 'waiting') return;
+            // 每个box错开启动
+            setTimeout(() => startSingleSpeedBox(i), i * 800);
+        });
+    }
+
+    function startSingleSpeedBox(idx) {
+        const state = speedBoxes[idx];
+        if (state.phase === 'revealed') return;
+        const box = state.el;
+        const textEl = box.querySelector('.speed-text');
+
+        box.className = 'speed-box green';
+        textEl.textContent = '等变色...';
+        textEl.style.display = '';
+        box.querySelector('.speed-img').classList.remove('show');
+        state.phase = 'green';
+
+        // 2-4秒后变黄
+        const greenDur = 1000 + Math.random() * 2000;
+        state.colorTimer = setTimeout(() => {
+            if (state.phase === 'revealed') return;
+            box.className = 'speed-box yellow';
+            textEl.textContent = '快点击！';
+            state.phase = 'yellow';
+
+            // 2-3秒后变粉
+            const yellowDur = 2000 + Math.random() * 1000;
+            state.colorTimer = setTimeout(() => {
+                if (state.phase === 'revealed') return;
+                box.className = 'speed-box pink';
+                textEl.textContent = '点我！';
+                state.phase = 'pink';
+
+                // 2-3秒后没点击，回到绿色重新循环
+                const pinkDur = 1000 + Math.random() * 1000;
+                state.colorTimer = setTimeout(() => {
+                    if (state.phase === 'revealed') return;
+                    startSingleSpeedBox(idx);
+                }, pinkDur);
+            }, yellowDur);
+        }, greenDur);
+    }
+
+    function handleSpeedBoxClick(idx) {
+        const state = speedBoxes[idx];
+        const box = state.el;
+        const textEl = box.querySelector('.speed-text');
+        const imgEl = box.querySelector('.speed-img');
+
+        if (state.phase === 'revealed') return;
+
+        if (state.phase === 'green') {
+            showSpeedToast('还没变色呢！等等~');
+            return;
+        }
+
+        if (state.phase === 'yellow') {
+            clearTimeout(state.colorTimer);
+            showSpeedToast('小笨蛋骗你的 😝<br>是亮粉色哦~');
+            // 1.5秒后变粉
+            setTimeout(() => {
+                if (state.phase === 'revealed') return;
+                box.className = 'speed-box pink';
+                textEl.textContent = '这次是真的！';
+                state.phase = 'pink';
+                // 2-3秒后没点击，回到绿色重新循环
+                const pinkDur = 2000 + Math.random() * 1000;
+                state.colorTimer = setTimeout(() => {
+                    if (state.phase === 'revealed') return;
+                    startSingleSpeedBox(idx);
+                }, pinkDur);
+            }, 1500);
+            // 暂时锁定防止连点
+            state.phase = 'cooldown';
+            return;
+        }
+
+        if (state.phase === 'pink') {
+            clearTimeout(state.colorTimer);
+            state.phase = 'revealed';
+            textEl.style.display = 'none';
+            box.className = 'speed-box revealed';
+            imgEl.classList.add('show');
+            if (state.captionEl) state.captionEl.classList.add('show');
+            showSpeedToast('解锁成功！🎉');
+        }
+    }
+
+    function showSpeedToast(msg) {
+        const toast = document.getElementById('speed-toast');
+        toast.innerHTML = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    // ===== IntersectionObserver =====
+    function initObservers() {
+        // 统计项逐个淡入
+        const statsObs = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setStage('stats');
+                    const items = document.querySelectorAll('.stat-item');
+                    items.forEach((item, i) => {
+                        setTimeout(() => {
+                            item.classList.add('visible');
+                        }, i * 300);
+                    });
+                    statsObs.disconnect();
+                }
+            });
+        }, { threshold: 0.2 });
+        const statsEl = document.getElementById('stats');
+        if (statsEl) statsObs.observe(statsEl);
+
+        // 时间轴节点观察
+        const timelineObs = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    setStage('timeline');
+                }
+            });
+        }, { threshold: 0.3 });
+
+        document.querySelectorAll('.timeline-node').forEach(node => {
+            timelineObs.observe(node);
+        });
+
+        // 游戏卡片观察（淡入动画）
+        const gameCardObs = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.15 });
+
+        document.querySelectorAll('.game-item').forEach(card => {
+            gameCardObs.observe(card);
+        });
+
+        // 游戏区 Section 观察
+        const gameObs = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setStage(entry.target.id);
+                    // 拼手速自动开始
+                    if (entry.target.id === 'speed-game' && speedBoxes.length > 0 && speedBoxes[0].phase === 'waiting') {
+                        setTimeout(() => startAllSpeedBoxes(), 600);
+                    }
+                }
+            });
+        }, { threshold: 0.3 });
+
+        ['scratch-game','flip-game','speed-game'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) gameObs.observe(el);
+        });
+
+        // 各 Section 观察（状态推进）
+        const sectionObs = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.id;
+                    setStage(id);
+                    // 激活该 section 内的动画元素
+                    entry.target.querySelectorAll(
+                        '.highlight-badge,.highlight-img,.highlight-text,.highlight-sub,' +
+                        '.pause-line,.pause-text'
+                    ).forEach(el => el.classList.add('visible'));
+                }
+            });
+        }, { threshold: 0.3 });
+
+        ['highlight','pause'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) sectionObs.observe(el);
+        });
+
+        // Ending 多阶段观察
+        initEndingObservers();
+    }
+
+    // ===== 拖拽浮窗 =====
+    function enableDrag(el) {
+        let startX = 0, startY = 0, elX = 0, elY = 0, dragging = false;
+
+        function onStart(e) {
+            e.preventDefault();
+            const point = e.touches ? e.touches[0] : e;
+            startX = point.clientX;
+            startY = point.clientY;
+            elX = el.offsetLeft;
+            elY = el.offsetTop;
+            dragging = true;
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('touchmove', onMove, { passive: false });
+            document.addEventListener('mouseup', onEnd);
+            document.addEventListener('touchend', onEnd);
+        }
+
+        function onMove(e) {
+            if (!dragging) return;
+            e.preventDefault();
+            const point = e.touches ? e.touches[0] : e;
+            let newLeft = elX + (point.clientX - startX);
+            let newTop = elY + (point.clientY - startY);
+
+            // 边界限制
+            const maxLeft = window.innerWidth - el.offsetWidth;
+            const maxTop = window.innerHeight - el.offsetHeight;
+            newLeft = Math.max(0, Math.min(newLeft, maxLeft));
+            newTop = Math.max(0, Math.min(newTop, maxTop));
+
+            el.style.left = newLeft + 'px';
+            el.style.top = newTop + 'px';
+            el.style.right = 'auto';
+        }
+
+        function onEnd() {
+            dragging = false;
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('touchmove', onMove);
+            document.removeEventListener('mouseup', onEnd);
+            document.removeEventListener('touchend', onEnd);
+        }
+
+        el.addEventListener('mousedown', onStart);
+        el.addEventListener('touchstart', onStart, { passive: false });
+    }
+
+    // ===== 音频控制 =====
+    function toggleAudio() {
+        const bgm = document.getElementById('bgm');
+        const btn = document.getElementById('audio-btn');
+        if (audioPlaying) {
+            bgm.pause();
+            btn.textContent = '🔇';
+            audioPlaying = false;
+        } else {
+            bgm.play();
+            btn.textContent = '🎵';
+            audioPlaying = true;
+        }
+    }
+
+    // ===== 关闭浮窗视频 =====
+    function closeVideo() {
+        const vf = document.getElementById('video-float');
+        vf.style.display = 'none';
+        vf.querySelector('video').pause();
+    }
+
+    // ===== 滚动进度条 =====
+    function updateProgress() {
+        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+        const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
+        document.getElementById('progress-bar').style.width = progress + '%';
+    }
+
+    window.addEventListener('scroll', updateProgress, { passive: true });
+
+
+    // ===== Ending 自动播放序列 =====
+    function initEndingObservers() {
+        const endingObs = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !endingTriggered) {
+                    endingTriggered = true;
+                    setStage('ending');
+                    playEndingSequence();
+                }
+            });
+        }, { threshold: 0.3 });
+        const el = document.getElementById('ending');
+        if (el) endingObs.observe(el);
+    }
+
+    // 构建回顾卡片
+    function buildReviewCards() {
+        const container = document.getElementById('review-cards');
+        const angles = [-12, 5, -6, 8, -3];
+        imgUrls.forEach((url, i) => {
+            const card = document.createElement('div');
+            card.className = 'review-card';
+            card.style.transform = `scale(0.8) rotate(${angles[i]}deg)`;
+            card.innerHTML = `<img src="${url}" alt="">`;
+            container.appendChild(card);
+        });
+    }
+
+    // 祝福语数据
+    const blessings = TEXT_CONFIG.blessings;
+
+    // 生成粉色花瓣烟花
+    function burstPetals() {
+        const container = document.getElementById('petals-container');
+        const cx = window.innerWidth / 2;
+        const cy = window.innerHeight / 2;
+        for (let i = 0; i < 60; i++) {
+            const p = document.createElement('div');
+            p.className = 'petal';
+            const angle = Math.random() * Math.PI * 2;
+            const rotate = Math.random() * 360;
+            const drift = (Math.random() - 0.5) * 100;
+            p.style.cssText = `
+                left:${cx}px; top:${cy}px;
+                width:${8 + Math.random() * 8}px;
+                height:${10 + Math.random() * 10}px;
+                transform: rotate(${rotate}deg);
+                --tx:${Math.cos(angle) * (100 + Math.random() * 150)}px;
+                --ty:${Math.sin(angle) * (100 + Math.random() * 150)}px;
+                --rot:${rotate + 720 + Math.random() * 360}deg;
+                --drift:${drift}px;
+                animation: enhancedBurst ${2 + Math.random() * 2}s cubic-bezier(0.1,0.8,0.3,1) forwards;
+            `;
+            container.appendChild(p);
+            p.addEventListener('animationend', () => p.remove());
+        }
+    }
+
+    // 生成白纱飘扬
+    function showVeil() {
+        const veil = document.getElementById('veil-layer');
+        for (let i = 0; i < 5; i++) {
+            const strip = document.createElement('div');
+            strip.className = 'veil-strip';
+            const w = 60 + Math.random() * 120;
+            const left = Math.random() * 100;
+            const dur = 3 + Math.random() * 2;
+            const delay = Math.random() * 2;
+            strip.style.cssText = `
+                width:${w}px; height:120vh;
+                left:${left}%;
+                animation: veilFlow ${dur}s ease ${delay}s infinite;
+            `;
+            veil.appendChild(strip);
+        }
+        veil.classList.add('show');
+    }
+
+    // 祝福语气球上浮
+    function launchBlessings() {
+        const container = document.getElementById('blessings-container');
+        const screenW = container.offsetWidth;
+        const screenH = container.offsetHeight;
+        let nextY = 10; // 下一个停靠的 Y 位置，从顶部开始
+        let idx = 0;
+
+        function launch() {
+            if (idx >= blessings.length || nextY >= screenH - 40) return;
+            const text = blessings[idx];
+            idx++;
+
+            const el = document.createElement('div');
+            el.className = 'blessing-balloon';
+            const size = 60 + Math.floor(Math.random() * 50);
+            el.style.fontSize = size + 'px';
+            el.textContent = text;
+            container.appendChild(el);
+
+            // 测量宽高
+            const bW = el.offsetWidth;
+            const bH = el.offsetHeight;
+            // 随机水平位置，确保不超出屏幕
+            const maxLeft = Math.max(0, screenW - bW);
+            const left = Math.random() * maxLeft;
+            el.style.left = left + 'px';
+
+            // 该气球的停靠位置
+            const stopY = nextY;
+            nextY += bH + 6; // 下一个停在这个的下方，留6px间距
+
+            let currentY = screenH;
+            el.style.top = currentY + 'px';
+            el.classList.add('visible');
+
+            // 上浮动画
+            const speed = 3 + Math.random() * 3;
+            function float() {
+                currentY -= speed;
+                if (currentY <= stopY) {
+                    currentY = stopY;
+                    el.style.top = currentY + 'px';
+                    return;
+                }
+                el.style.top = currentY + 'px';
+                requestAnimationFrame(float);
+            }
+            requestAnimationFrame(float);
+        }
+
+        // 每600ms发射一个祝福语
+        const timer = setInterval(() => {
+            if (idx >= blessings.length || nextY >= screenH - 40) {
+                clearInterval(timer);
+                return;
+            }
+            launch();
+        }, 600);
+        launch(); // 立即发射第一个
+    }
+
+    // 自动播放时序
+    function playEndingSequence() {
+        buildReviewCards();
+        const cards = document.querySelectorAll('.review-card');
+        const farewell = document.querySelector('.farewell-text');
+        const wash = document.querySelector('.wash-overlay');
+        const year = document.querySelector('.year-forward');
+
+        // 阶段1: 卡片逐张闪现（每张 1500ms，停留更久）
+        cards.forEach((card, i) => {
+            const angle = [-12, 5, -6, 8, -3][i];
+            setTimeout(() => {
+                card.style.transition = 'opacity 1.2s ease, transform 1.4s ease';
+                card.style.opacity = '1';
+                card.style.transform = `scale(1.6) rotate(${angle}deg)`;
+            }, i * 1500);
+            // 下一张出现时，前一张缩小退场
+            if (i > 0) {
+                setTimeout(() => {
+                    cards[i - 1].style.opacity = '0.3';
+                    cards[i - 1].style.transform = `scale(0.3) rotate(${[-12,5,-6,8,-3][i-1]}deg)`;
+                }, i * 1500);
+            }
+        });
+
+        const cardsDuration = cards.length * 1500;
+
+        // 阶段2: 所有卡片淡出
+        setTimeout(() => {
+            cards.forEach(c => {
+                c.style.transition = 'opacity 0.8s ease';
+                c.style.opacity = '0';
+            });
+        }, cardsDuration + 400);
+
+        // 阶段3: 告别文字
+        setTimeout(() => {
+            farewell.classList.add('show');
+        }, cardsDuration + 1200);
+
+        // 阶段4: 告别文字淡出
+        setTimeout(() => {
+            farewell.classList.remove('show');
+            farewell.classList.add('hide');
+        }, cardsDuration + 3200);
+
+        // 阶段5: 粉色洗白 + 白纱飘扬 + 花瓣绽放
+        setTimeout(() => {
+            wash.classList.add('active');
+            showVeil();
+            burstPetals();
+        }, cardsDuration + 4000);
+
+        // 阶段6: 2026 像音符一样飘入
+        setTimeout(() => {
+            year.classList.add('show');
+            const chars = document.querySelectorAll('.year-char');
+            chars.forEach((ch, i) => {
+                setTimeout(() => {
+                    ch.classList.add('float-in');
+                }, i * 250);
+            });
+        }, cardsDuration + 5500);
+
+        // 阶段7: 再次绽放花瓣（加强效果）
+        setTimeout(() => {
+            burstPetals();
+        }, cardsDuration + 7000);
+
+        // 阶段8: 2026 向上渐变消失
+        setTimeout(() => {
+            year.classList.add('fade-up');
+        }, cardsDuration + 8500);
+
+        // 阶段9: 祝福语气球上浮
+        setTimeout(() => {
+            launchBlessings();
+        }, cardsDuration + 9800);
+    }
+
+    // ===== 背景贴纸 =====
+    function scatterStickers() {
+        const main = document.querySelector('main');
+        const pageH = main.scrollHeight;
+        const pageW = main.offsetWidth;
+        const mainRect = main.getBoundingClientRect();
+        const scrollTop = main.scrollTop || window.pageYOffset || 0;
+
+        const contentRects = [];
+        const contentSelectors = [
+            '.cover-year', '.cover-title', '.cover-sub',
+            '.timeline-node',
+            '.game-header', '.scratch-card', '.flip-card-wrapper', '.speed-box',
+            '.highlight-badge', '.highlight-img', '.highlight-text', '.highlight-sub',
+            '.pause-line', '.pause-text'
+        ];
+        document.querySelectorAll(contentSelectors.join(',')).forEach(el => {
+            const r = el.getBoundingClientRect();
+            contentRects.push({
+                x: r.left - mainRect.left,
+                y: r.top - mainRect.top + scrollTop,
+                w: r.width,
+                h: r.height
+            });
+        });
+
+        const placed = [];
+        const minSize = 100;
+        const maxSize = 160;
+        const padding = 12;
+
+        function isOverlap(x, y, size) {
+            const hitContent = contentRects.some(r =>
+                x < r.x + r.w + padding &&
+                x + size + padding > r.x &&
+                y < r.y + r.h + padding &&
+                y + size + padding > r.y
+            );
+            if (hitContent) return true;
+            return placed.some(r =>
+                x < r.x + r.w + padding &&
+                x + size + padding > r.x &&
+                y < r.y + r.h + padding &&
+                y + size + padding > r.y
+            );
+        }
+
+        const cols = 3;
+        const cellW = pageW / cols;
+        const totalStickers = stickerImages.length;
+        const rows = Math.ceil(totalStickers / cols);
+        const maxY = pageH - maxSize - 10;
+        const cellH = Math.min(maxY / rows, pageH / rows);
+
+        stickerImages.forEach((src, i) => {
+            const col = i % cols;
+            const row = Math.floor(i / cols);
+            const size = minSize + Math.floor(Math.random() * (maxSize - minSize + 1));
+
+            const baseX = col * cellW;
+            const baseY = row * cellH;
+            const jitterX = (Math.random() - 0.5) * cellW * 0.3;
+            const jitterY = (Math.random() - 0.5) * cellH * 0.3;
+
+            let x = baseX + (cellW - size) / 2 + jitterX;
+            let y = baseY + (cellH - size) / 2 + jitterY;
+            x = Math.max(0, Math.min(x, pageW - size));
+            y = Math.max(0, Math.min(y, maxY));
+
+            const rot = Math.floor(Math.random() * 30) - 15;
+
+            let found = !isOverlap(x, y, size);
+            if (!found) {
+                for (let t = 0; t < 15; t++) {
+                    const nx = x + (Math.random() - 0.5) * 80;
+                    const ny = y + (Math.random() - 0.5) * 80;
+                    const cx = Math.max(0, Math.min(nx, pageW - size));
+                    const cy = Math.max(0, Math.min(ny, maxY));
+                    if (!isOverlap(cx, cy, size)) {
+                        x = cx; y = cy; found = true; break;
+                    }
+                }
+            }
+            if (!found) return;
+
+            placed.push({ x, y, w: size, h: size });
+
+            const img = document.createElement('img');
+            img.className = 'bg-sticker';
+            img.src = src;
+            img.loading = 'lazy';
+            img.style.width = size + 'px';
+            img.style.left = x + 'px';
+            img.style.top = y + 'px';
+            img.style.transform = `rotate(${rot}deg)`;
+            main.appendChild(img);
+        });
+    }
+
+    // ===== Toast 提示 =====
+    function showToast(msg) {
+        const t = document.createElement('div');
+        t.textContent = msg;
+        Object.assign(t.style, {
+            position: 'fixed', bottom: '80px', left: '50%',
+            transform: 'translateX(-50%)',
+            background: 'rgba(0,0,0,0.7)', color: '#fff',
+            padding: '10px 24px', borderRadius: '20px',
+            fontSize: '14px', zIndex: '9999',
+            transition: 'opacity 0.3s'
+        });
+        document.body.appendChild(t);
+        setTimeout(() => { t.style.opacity = '0'; }, 1500);
+        setTimeout(() => { document.body.removeChild(t); }, 1800);
+    }
+</script>
+</body>
+</html>
