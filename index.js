@@ -8,7 +8,7 @@ const TEXT_CONFIG = {
         icon: '❤️',
         title: '开启回忆',
         desc: '一起回顾属于我们的 2025<br>那些温暖的瞬间',
-        btn: '下滑开始回忆'
+        btn: '回顾'
     },
 
     // 封面
@@ -226,6 +226,7 @@ async function callAI(visibleText) {
     if (!bubble || !bubbleText) { aiCalling = false; return; }
 
     // 先显示加载状态
+    bubbleText.textContent = '';
     bubble.style.display = 'block';
 
     try {
@@ -237,6 +238,7 @@ async function callAI(visibleText) {
             },
             body: JSON.stringify({
                 model: 'Qwen/Qwen3-8B',
+                stream: true,
                 messages: [
                     {
                         role: 'system',
@@ -252,14 +254,41 @@ async function callAI(visibleText) {
             })
         });
 
-        const data = await res.json();
-        const reply = data.choices && data.choices[0] && data.choices[0].message
-            ? data.choices[0].message.content
-            : '';
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let fullText = '';
+        let buffer = '';
 
-        if (reply) {
-            bubbleText.textContent = reply;
-        } else {
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+            // 按行解析 SSE
+            const lines = buffer.split('\n');
+            // 最后一行可能不完整，留到下次
+            buffer = lines.pop();
+
+            for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed || !trimmed.startsWith('data:')) continue;
+                const jsonStr = trimmed.slice(5).trim();
+                if (jsonStr === '[DONE]') continue;
+
+                try {
+                    const chunk = JSON.parse(jsonStr);
+                    const delta = chunk.choices && chunk.choices[0] && chunk.choices[0].delta;
+                    if (delta && delta.content) {
+                        fullText += delta.content;
+                        bubbleText.textContent = fullText;
+                    }
+                } catch (e) {
+                    // 忽略解析失败的行
+                }
+            }
+        }
+
+        if (!fullText) {
             bubbleText.textContent = visibleText;
         }
     } catch (err) {
@@ -354,7 +383,7 @@ function updateBubblePosition() {
 }
 
 window.addEventListener('scroll', debounce(function () {
-    getVisibleText();
+    /* getVisibleText(); */
     updateBubblePosition();
 }, 300), { passive: true });
 

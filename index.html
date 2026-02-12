@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>回忆家宴 - 2025</title>
     <style>
         :root {
@@ -29,6 +29,7 @@
             color: var(--text);
             overflow: hidden;
             -webkit-overflow-scrolling: touch;
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         body.scrollable {
@@ -43,7 +44,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 60px 24px;
+            padding: 60px 24px calc(60px + env(safe-area-inset-bottom));
             position: relative;
         }
 
@@ -184,7 +185,7 @@
         .cover-sub.visible { opacity: 1; }
         .scroll-hint {
             position: absolute;
-            bottom: 40px;
+            bottom: calc(40px + env(safe-area-inset-bottom));
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -883,6 +884,42 @@
             opacity: 1;
         }
 
+        /* 再看一次按钮 */
+        .ending-replay {
+            position: absolute;
+            bottom: 12vh;
+            left: 0; right: 0;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            pointer-events: none;
+        }
+        .ending-replay.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        .replay-btn {
+            background: linear-gradient(135deg, rgba(255,182,193,0.9), rgba(255,218,225,0.9));
+            border: 2px solid rgba(196,120,138,0.4);
+            color: #8B4557;
+            font-size: 16px;
+            font-weight: 700;
+            padding: 14px 36px;
+            border-radius: 50px;
+            cursor: pointer;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 20px rgba(196,120,138,0.3);
+            animation: replayPulse 2s ease-in-out infinite;
+        }
+        @keyframes replayPulse {
+            0%, 100% { box-shadow: 0 4px 20px rgba(196,120,138,0.3); }
+            50% { box-shadow: 0 4px 30px rgba(196,120,138,0.6); }
+        }
+
         /* ===== 背景贴纸 ===== */
         .bg-sticker {
             position: absolute;
@@ -930,6 +967,33 @@
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+        .video-tag {
+            position: absolute;
+            bottom: -24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            color: #1a7fd4;
+            border: 1.5px solid #1a7fd4;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 10px;
+            white-space: nowrap;
+            letter-spacing: 1px;
+        }
+
+        /* ===== 右下角提示 ===== */
+        .footer-hint {
+            position: fixed;
+            bottom: calc(10px + env(safe-area-inset-bottom));
+            right: 12px;
+            font-size: 10px;
+            color: var(--text-light);
+            z-index: 800;
+            display: none;
+            letter-spacing: 0.5px;
         }
 
         /* ===== 进度指示器 ===== */
@@ -1071,6 +1135,9 @@
     <!-- 进度条 -->
     <div id="progress-bar"></div>
 
+    <!-- 右下角提示 -->
+    <div class="footer-hint" id="footer-hint">任何技术和内容问题来微信找我哦，老婆</div>
+
     <!-- 音频控制按钮 -->
     <button id="audio-btn" onclick="toggleAudio()">🎵</button>
     <audio id="bgm" loop preload="auto">
@@ -1083,6 +1150,7 @@
             <source src="" type="video/mp4">
         </video>
         <button class="video-close" onclick="closeVideo()">✕</button>
+        <div class="video-tag">真人在微信</div>
     </div>
     <!-- 气泡窗 -->
     <div id="speech-bubble" class="speech-bubble">
@@ -1210,6 +1278,10 @@
             </div>
             <!-- 祝福语气球容器 -->
             <div class="blessings-container" id="blessings-container"></div>
+            <!-- 再看一次按钮 -->
+            <div class="ending-replay" id="ending-replay">
+                <button class="replay-btn" onclick="replayMemory()">🌸 再看一次</button>
+            </div>
         </section>
 
     </main>
@@ -1373,6 +1445,7 @@
 
         // 显示浮窗视频
         document.getElementById('video-float').style.display = 'block';
+        document.getElementById('footer-hint').style.display = 'block';
 
         // 初始化内容
         buildStats();
@@ -1889,6 +1962,22 @@
     window.addEventListener('scroll', updateProgress, { passive: true });
 
 
+    // ===== Ending 锁定/解锁滚动 =====
+    function lockScrollForEnding() {
+        const endingEl = document.getElementById('ending');
+        if (endingEl) {
+            endingEl.scrollIntoView({ behavior: 'smooth' });
+        }
+        setTimeout(() => {
+            document.body.style.overflow = 'hidden';
+            document.documentElement.style.overflow = 'hidden';
+        }, 500);
+    }
+    function unlockScroll() {
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+    }
+
     // ===== Ending 自动播放序列 =====
     function initEndingObservers() {
         const endingObs = new IntersectionObserver((entries) => {
@@ -1896,12 +1985,39 @@
                 if (entry.isIntersecting && !endingTriggered) {
                     endingTriggered = true;
                     setStage('ending');
+                    lockScrollForEnding();
                     playEndingSequence();
                 }
             });
-        }, { threshold: 0.3 });
+        }, { threshold: 0.05 });
         const el = document.getElementById('ending');
         if (el) endingObs.observe(el);
+
+        // 滚动到底部时立即触发 ending
+        window.addEventListener('scroll', function onScrollBottom() {
+            if (endingTriggered) {
+                window.removeEventListener('scroll', onScrollBottom);
+                return;
+            }
+            const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight;
+            const clientHeight = window.innerHeight;
+            // 距离底部 100px 以内就触发
+            if (scrollTop + clientHeight >= scrollHeight - 100) {
+                endingTriggered = true;
+                setStage('ending');
+                // 先滚动到 ending 区域顶部
+                const endingEl = document.getElementById('ending');
+                if (endingEl) {
+                    endingEl.scrollIntoView({ behavior: 'smooth' });
+                }
+                setTimeout(() => {
+                    lockScrollForEnding();
+                    playEndingSequence();
+                }, 400);
+                window.removeEventListener('scroll', onScrollBottom);
+            }
+        }, { passive: true });
     }
 
     // 构建回顾卡片
@@ -2107,6 +2223,42 @@
         setTimeout(() => {
             launchBlessings();
         }, cardsDuration + 9800);
+
+        // 阶段10: 显示再看一次按钮 + 解锁滚动
+        setTimeout(() => {
+            const replayEl = document.getElementById('ending-replay');
+            if (replayEl) replayEl.classList.add('show');
+            unlockScroll();
+        }, cardsDuration + 14000);
+    }
+
+    // 再看一次 - 回到顶部
+    function replayMemory() {
+        endingTriggered = false;
+        // 清理 ending 内容
+        const reviewCards = document.getElementById('review-cards');
+        if (reviewCards) reviewCards.innerHTML = '';
+        const blessingsContainer = document.getElementById('blessings-container');
+        if (blessingsContainer) blessingsContainer.innerHTML = '';
+        const petalsContainer = document.getElementById('petals-container');
+        if (petalsContainer) petalsContainer.innerHTML = '';
+        const veilLayer = document.getElementById('veil-layer');
+        if (veilLayer) { veilLayer.innerHTML = ''; veilLayer.classList.remove('show'); }
+
+        // 重置 ending 各元素状态
+        const farewell = document.querySelector('.farewell-text');
+        if (farewell) { farewell.classList.remove('show', 'hide'); }
+        const wash = document.querySelector('.wash-overlay');
+        if (wash) { wash.classList.remove('active'); }
+        const year = document.querySelector('.year-forward');
+        if (year) { year.classList.remove('show', 'fade-up'); }
+        const chars = document.querySelectorAll('.year-char');
+        chars.forEach(ch => ch.classList.remove('float-in'));
+        const replayEl = document.getElementById('ending-replay');
+        if (replayEl) replayEl.classList.remove('show');
+
+        // 回到顶部
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     // ===== 背景贴纸 =====
