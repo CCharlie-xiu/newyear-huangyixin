@@ -435,7 +435,9 @@
             width: 100%;
         }
         .scratch-card img {
-            width: 100%; height: auto;
+            position: absolute; inset: 0;
+            width: 100%; height: 100%;
+            object-fit: contain;
             display: block;
         }
         .scratch-card canvas {
@@ -508,8 +510,8 @@
             background: var(--white);
         }
         .flip-back img {
-            width: 100%; height: auto;
-            display: block;
+            width: 100%; height: 100%;
+            object-fit: contain; display: block;
         }
 
         /* ===== 拼手速 ===== */
@@ -1527,6 +1529,7 @@
 
             const card = document.createElement('div');
             card.className = 'scratch-card';
+            card.style.aspectRatio = '4/3'; // 默认，图片加载后更新
             card.innerHTML = `<img src="${galleryUrls[i]}" loading="lazy" alt="${captions[i] || ''}">`;
 
             const cap = document.createElement('div');
@@ -1537,19 +1540,20 @@
             item.appendChild(cap);
             grid.appendChild(item);
 
-            // 等图片加载后初始化canvas
+            // 等图片加载后初始化canvas + 设置实际比例
             const img = card.querySelector('img');
-            img.addEventListener('load', () => {
-                const canvas = document.createElement('canvas');
-                card.appendChild(canvas);
-                initScratchCanvas(canvas, card);
-            });
-            // 如果图片已缓存
-            if (img.complete) {
-                const canvas = document.createElement('canvas');
-                card.appendChild(canvas);
-                initScratchCanvas(canvas, card);
+            function onImgReady() {
+                if (img.naturalWidth && img.naturalHeight) {
+                    card.style.aspectRatio = img.naturalWidth + '/' + img.naturalHeight;
+                }
+                if (!card.querySelector('canvas')) {
+                    const canvas = document.createElement('canvas');
+                    card.appendChild(canvas);
+                    initScratchCanvas(canvas, card);
+                }
             }
+            img.addEventListener('load', onImgReady);
+            if (img.complete) onImgReady();
         }
     }
 
